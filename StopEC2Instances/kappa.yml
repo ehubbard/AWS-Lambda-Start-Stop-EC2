@@ -1,0 +1,30 @@
+---
+name: stopEC2Instances
+environments:
+  dev:
+    profile: default
+    region: us-east-1
+    policy:
+      statements:
+        - Effect: Allow
+          Resource: "*"
+          Action: "logs:*"
+
+        - Effect: Allow
+          Resource: "*"
+          Action:
+            - "ec2:Start*"
+            - "ec2:Stop*"
+            - "ec2:DescribeInstances"
+          #Add Region and AWS Account ID.
+    event_sources:
+        - arn: arn:aws:events:AWS_REGION:AWS_ACCOUNTID:rule/stop-ec2-cron
+          schedule: cron(0 1 ? * MON,TUE,WED,THU,FRI,SAT,SUN *)
+          description: cron to run the stopEC2Instances lambda Sun-Sat at 8:00PM EST
+          enabled: true
+lambda:
+  description: Stops EC2 Instances with ENV Tags Test and Demo
+  handler: stopEC2.handler
+  runtime: python2.7
+  memory_size: 128
+  timeout: 3

@@ -1,0 +1,30 @@
+---
+name: startEC2Instances
+environments:
+  dev:
+    profile: default
+    region: us-east-1
+    policy:
+      statements:
+        - Effect: Allow
+          Resource: "*"
+          Action: "logs:*"
+
+        - Effect: Allow
+          Resource: "*"
+          Action:
+            - "ec2:Start*"
+            - "ec2:Stop*"
+            - "ec2:DescribeInstances"
+    #Add Region and AWS Account ID
+    event_sources:
+        - arn: arn:aws:events:AWS_REGION:AWS_ACCOUNT_ID:rule/start-ec2-cron
+          schedule: cron(0 13 ? * MON,TUE,WED,THU,FRI *)
+          description: cron to run StartEC2 lambda function Mon-Fri 8:00AM EST
+          enabled: true
+lambda:
+  description: Starts EC2 Instances with ENV Tags Test and Demo
+  handler: startEC2.handler
+  runtime: python2.7
+  memory_size: 128
+  timeout: 3
